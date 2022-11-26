@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Error!</title>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="">
+<style>
+</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<script>
+function getURL(){
+    var current_url = String(window.location.href);
+    var home_url = current_url.slice(0,-8);
+    document.location.href =home_url;
+
+}
+
+function redirect(){
+    setTimeout(getURL,5000);
+}
+
+
+</script>
+
+<body onload="redirect();">
+<h1>"HTTP Error Bad Request! You have provided no URL. You will be redirected in about 5 seconds!"</h1>   
+
+</body>
+</html> 

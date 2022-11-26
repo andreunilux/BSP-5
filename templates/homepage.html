@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Video download and classification</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="">
+<style>
+</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<script src=""></script>
+<body>
+
+
+
+<div class="">
+ <h1>Please enter the video URL of the video you want to download and classify</h1>
+ <form action="/download" method="post">
+    <ul>
+      <li>
+        <label for="name">URL of the video:</label>
+        <input type="url" id="url_video" placeholder="video URL" name="url_link_video" />
+        <li class="button">
+            <button type="submit">classify the video</button>
+          </li>          
+      </li>
+    </ul>
+  </form>
+  
+ <p>Please visit <a href="https://github.com/ytdl-org/youtube-dl/blob/master/docs/supportedsites.md">youtube-dl supported plattforms</a> to see which website URLs are supported.</p>
+</div>
+
+</body>
+</html> 
