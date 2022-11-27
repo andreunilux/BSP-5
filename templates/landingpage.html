@@ -3,9 +3,28 @@
 <head>
   <title>Your file is being processed</title>
 </head>
-<body>
-<h1>Your file is being processed</h1>
-<h2>The download is currently at {{value}} </h2>
-<script>
 
+<script>
+  function check(){
+    setTimeout(httpGet(),5000);
+}
+
+function getURL(){
+    var current_url = String(window.location.href);
+    var home_url = current_url.slice(0,-8);
+    return home_url+'/check'
+
+}
+
+function httpGet(){
+
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", getURL() , false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
 </script>
+
+<body onload="httpGet();">
+  <h1>Your video is being downlaoded...</h1>
+  <h2>Currently {{value}} </h2>
