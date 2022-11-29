@@ -5,14 +5,13 @@
 </head>
 
 <script>
-  function check(){
-    setTimeout(httpGet(),5000);
-}
+    function check(){
+      setInterval(httpGet,5000);}
 
 function getURL(){
     var current_url = String(window.location.href);
     var home_url = current_url.slice(0,-8);
-    return home_url+'/check'
+    return home_url+'check'
 
 }
 
@@ -25,6 +24,6 @@ function httpGet(){
 }
 </script>
 
-<body onload="httpGet();">
+<body onload="check();">
   <h1>Your video is being downlaoded...</h1>
   <h2>Currently {{value}} </h2>

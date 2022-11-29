@@ -16,9 +16,20 @@ import logging
 import io
 
 
+
+#Ask for thread save data structure
+
+data=[]
+
+
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///videos.db'
 db = SQLAlchemy(app)
+
+
+
+
 
 
 
@@ -37,19 +48,21 @@ def homepage():
     return render_template('homepage.html')
 
 
+
+
+
 @app.route("/check")
 def sent_status():
-    print('This is error output', file=sys.stderr)
-    print('This is standard output', file=sys.stdout)
+    hash = request.args.get("video_id")
+    #logfile = open(data[0], "r")
+    #last_line = logfile.readline(3)
+    #progress = re.search("d{1}\.d{1}%",last_line)
+    return render_template('landingpage.html', value='f')
 
-    hash = hash_list[-1]    
-    logfile = open(hash+".log", "r")
-    last_line = logfile.read()
-    print(last_line, file=sys.stdout)
-    progress = re.search("d{1}\.d{1}%",last_line)
-    
-    if process_list[-1].poll() == None:
-        return render_template('landingpage.html', value=progress)
+    if data[2].poll() != None:
+        with open(data[1], "r") as f:
+            title_db = f.readline(1)
+            
 
     return render_template('landingpage2.html')
     
@@ -73,19 +86,27 @@ def classify():
     title = "title"+hash+".txt"
     with io.open(title, "w") as name:
         naming = subprocess.Popen(['youtube-dl '+ url_video+" -e"], shell=True, stdout=name)
-        sys.stdout.write()
+    
+        
     
     filename = hash+".log"
     with io.open(filename, "w") as writer:
         downloading = subprocess.Popen(['youtube-dl '+ url_video], shell=True, stdout=writer)
-        sys.stdout.write()
+       
+
 
     #database stuff
     new_video = Video(hashed_url=hash, video_title="", downloaded=False, result="",classified=False)
     db.session.add(new_video)
     db.session.commit()
+
+    #store 
+    data.append(filename)
+    data.append(title)
+    data.append(naming)
+    data.append(downloading)
     
-    return render_template('landingpage.html'), sent_status(filename, title, naming, downloading)
+    return redirect("landingpage.html?videoid="+hash)
 
     
     
