@@ -17,11 +17,6 @@ import io
 
 
 
-#Ask for thread save data structure
-
-data=[]
-
-
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///videos.db'
@@ -34,7 +29,7 @@ db = SQLAlchemy(app)
 
 
 class Video(db.Model):
-    hashed_url = db.Column(db.String(200), primary_key=True)
+    url = db.Column(db.String(200), primary_key=True)
     video_title = db.Column(db.String(200))
     downloaded = db.Column(db.Boolean, nullable=False)
     result = db.Column(db.String(300))
@@ -53,8 +48,17 @@ def homepage():
 
 @app.route("/check")
 def sent_status():
-    hash = request.args.get("video_id")
-    return render_template('landingpage.html', value='f')
+    # get the video id
+    url_video = request.args.get("video_id")
+    downloading = request.args.get("download_p")
+    naming = request.args.get("download_n")
+    
+    finished = downloading.poll()
+    
+    if finished is None:
+        return render_template('landingpage_download.html',process_download=downloading, process_naming=naming)
+    else:
+        return render_template('landingpage_classify.html')
 
     
 
@@ -69,38 +73,42 @@ def classify():
     if not url_video:
         return render_template('400_http.html',status=400)
     
-    #create Hash
-    m = hashlib.sha256()
-    m.update(url_video.encode('utf-8'))
-    hash = m.hexdigest()
     
-    title = "title"+hash+".txt"
-    with io.open(title, "w") as name:
-        naming = subprocess.Popen(['youtube-dl '+ url_video+" -e"], shell=True, stdout=name)
     
-        
-    
-    filename = hash+".log"
-    with io.open(filename, "w") as writer:
-        downloading = subprocess.Popen(['youtube-dl '+ url_video], shell=True, stdout=writer)
-       
-
-
     #database stuff
-    new_video = Video(hashed_url=hash, video_title="", downloaded=False, result="",classified=False)
+    new_video = Video(url=url_video, video_title="", downloaded=False, result="",classified=False)
     db.session.add(new_video)
     db.session.commit()
 
-    #store 
-    data.append(filename)
-    data.append(title)
-    data.append(naming)
-    data.append(downloading)
     
-    return redirect("landingpage.html?videoid="+hash)
+    return redirect(location="http://localhost:8080/downloading?video_id="+ str(url_video))
 
+
+
+@app.route("/downloading", methods=["GET"])
+def send_video_id():
+    query = request.args.to_dict()
+    url_video = query.get("video_id") 
+
+    #Hashing video_url
+
+
+
+    title = str(".txt")
+    name= open(title, "w+")
+    
+    naming = subprocess.Popen(['youtube-dl '+ url_video+" -e"], shell=True, stdout=name)
     
     
+    
+    
+        
+    
+    filename = url_video+".log"
+    with io.open(filename, "wb") as writer:
+        downloading = subprocess.Popen(['youtube-dl '+ url_video], shell=True, stdout=writer)
+
+    return render_template("landingpage_download.html", process_download=downloading, process_naming=naming,  progress=filename, title=title)
 
 
 if __name__ == "__main__":

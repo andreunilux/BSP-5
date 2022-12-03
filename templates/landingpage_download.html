@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <title>Your file is being processed</title>
+</head>
+
+<script>
+    function check(){
+      setInterval(httpGet,5000);}
+
+
+function httpGet(){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", location.host+"/check", false); // false for synchronous request
+    //get video id
+    let params = (new URL(document.location)).searchParams;
+    let video_id = params.get(video_id);
+    let download_p = '{{process_download}}'
+    let download_n = '{{process_naming}}'
+    xmlHttp.send(video_id, download_p, download_n );
+    return xmlHttp.responseText;
+}
+</script>
+
+<body onload="check();">
+  <h1>Your video is being downloaded...</h1>
+  <h2>You will be redirected as soon as your video finished downloading.</h2>
