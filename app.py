@@ -54,17 +54,8 @@ def homepage():
 @app.route("/check")
 def sent_status():
     hash = request.args.get("video_id")
-    #logfile = open(data[0], "r")
-    #last_line = logfile.readline(3)
-    #progress = re.search("d{1}\.d{1}%",last_line)
     return render_template('landingpage.html', value='f')
 
-    if data[2].poll() != None:
-        with open(data[1], "r") as f:
-            title_db = f.readline(1)
-            
-
-    return render_template('landingpage2.html')
     
 
 
