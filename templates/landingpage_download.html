@@ -4,21 +4,39 @@
   <title>Your file is being processed</title>
 </head>
 
+
 <script>
-    function check(){
-      setInterval(httpGet,5000);}
+let timer;
+function check(){
+  timer = setInterval(httpPost, 5000);
+}
 
 
-function httpGet(){
+function httpPost(){
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", location.host+"/check", false); // false for synchronous request
+    xmlHttp.open( "POST", "http://localhost:8080/check"); // false for synchronous request
     //get video id
-    let params = (new URL(document.location)).searchParams;
-    let video_id = params.get(video_id);
+    let params = new URL(location.href).searchParams;
+    let video_id = params.get('video_id');
     let download_p = '{{process_download}}'
     let download_n = '{{process_naming}}'
-    xmlHttp.send(video_id, download_p, download_n );
-    return xmlHttp.responseText;
+    
+    const datatosend ={
+      id: video_id,
+      process_id_d : download_p,
+      process_id_n : download_n,
+    };
+    const jsondata = JSON.stringify(datatosend);
+    xmlHttp.setRequestHeader( "Content-Type", "application/json" );
+    xmlHttp.onload=function(){
+      let video_url = xmlHttp.responseText
+      if (video_url!=-1){
+        timer=null;
+        window.location.href = 'http://localhost:8080/classify?video_id='+encodeURIComponent(video_url)
+
+      }
+    }
+    xmlHttp.send(jsondata);
 }
 </script>
 

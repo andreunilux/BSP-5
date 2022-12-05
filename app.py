@@ -14,7 +14,7 @@ import re
 import subprocess
 import logging
 import io
-
+import ctypes
 
 
 
@@ -46,69 +46,85 @@ def homepage():
 
 
 
-@app.route("/check")
+@app.route("/check", methods=['POST'])
 def sent_status():
-    # get the video id
-    url_video = request.args.get("video_id")
-    downloading = request.args.get("download_p")
-    naming = request.args.get("download_n")
-    
-    finished = downloading.poll()
-    
-    if finished is None:
-        return render_template('landingpage_download.html',process_download=downloading, process_naming=naming)
-    else:
-        return render_template('landingpage_classify.html')
+    if request.method == 'POST':
+        #JSON request contains video_url(id),download process, and naming process  
+        data_json = request.get_json()
+        video_url = data_json['id']
+        downloading = ctypes.cast(int(data_json['process_id_d']), ctypes.py_object).value
+        naming = ctypes.cast(int(data_json['process_id_n']), ctypes.py_object).value
+        
+        print(downloading.poll())  
+        finished = downloading.poll()
+        
+        if finished is None:
+            #set video in video to downlowd true
+            print("video download not finished")
+            return -1
+        elif finished ==0:
+            return video_url
+            
+
+
+
 
     
 
+@app.route("/classify", methods=["GET"])
+def  classify():
+    query = request.args.to_dict()
+    video_url = str(query.get("video_id")) 
+    return render_template("landingpage_classify.html") 
 
 
 
 
 @app.route("/download", methods=["POST"])
-def classify():
+def download():
     #check if URL
-    url_video = request.form.get("url_link_video")
-    if not url_video:
+    video_url = request.form.get("url_link_video")
+    if not video_url:
         return render_template('400_http.html',status=400)
     
-    
+    #
     
     #database stuff
-    new_video = Video(url=url_video, video_title="", downloaded=False, result="",classified=False)
+    new_video = Video(url=video_url, video_title="", downloaded=False, result="",classified=False)
     db.session.add(new_video)
     db.session.commit()
 
-    
-    return redirect(location="http://localhost:8080/downloading?video_id="+ str(url_video))
+    render_template("landingpage_download.html")
+    return redirect(location="http://localhost:8080/downloading?video_id="+ str(video_url),code=302)
 
 
 
 @app.route("/downloading", methods=["GET"])
 def send_video_id():
     query = request.args.to_dict()
-    url_video = query.get("video_id") 
+    video_url = str(query.get("video_id")) 
+    video_url1 = str(query.get("video_id")) 
 
     #Hashing video_url
-
-
-
-    title = str(".txt")
+    m = hashlib.sha256()
+    m.update(video_url.encode('utf-8'))
+    hash = m.hexdigest()
+    print(video_url)
+    #getting video name with yt-dl
+    title = str('/home/student/Logs/'+hash+"_name.txt")
     name= open(title, "w+")
+    naming = subprocess.Popen(['youtube-dl '+ video_url1 +" -e"], shell=True, stdout=name)
     
-    naming = subprocess.Popen(['youtube-dl '+ url_video+" -e"], shell=True, stdout=name)
-    
-    
-    
-    
-        
-    
-    filename = url_video+".log"
-    with io.open(filename, "wb") as writer:
-        downloading = subprocess.Popen(['youtube-dl '+ url_video], shell=True, stdout=writer)
+    #downloading video with yt-dl
+    filename = '/home/student/Logs/'+hash+"_progress.log"
+    writer= open(filename, "w+")
+    downloading = subprocess.Popen(['youtube-dl '+ video_url1], shell=True, stdout=writer)
 
-    return render_template("landingpage_download.html", process_download=downloading, process_naming=naming,  progress=filename, title=title)
+    return render_template("landingpage_download.html", process_download=id(downloading), process_naming=id(naming))
+
+
+
+
 
 
 if __name__ == "__main__":
