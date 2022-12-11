@@ -14,7 +14,7 @@ function check(){
 
 function httpPost(){
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "POST", "http://localhost:8080/check"); // false for synchronous request
+    xmlHttp.open( "POST", "http://localhost:8080/check_download"); // false for synchronous request
     //get video id
     let params = new URL(location.href).searchParams;
     let video_id = params.get('video_id');
@@ -30,7 +30,7 @@ function httpPost(){
     xmlHttp.setRequestHeader( "Content-Type", "application/json" );
     xmlHttp.onload=function(){
       let video_url = xmlHttp.responseText
-      if (video_url!=-1){
+      if (video_url!="-1"){
         timer=null;
         window.location.href = 'http://localhost:8080/classify?video_id='+encodeURIComponent(video_url)
 

@@ -1,7 +1,0 @@
-http://localhost/progress.html?video_id=12345667890
-
-send("video_id=12345667890")
-
-GET localhost/check
-
-request.args.get("video_id")

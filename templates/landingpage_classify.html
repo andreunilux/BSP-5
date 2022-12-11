@@ -5,8 +5,39 @@
 </head>
 
 <script>
+  let timer;
+function check(){
+  timer = setInterval(httpPost, 5000);
+}
+
+
+function httpPost(){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "POST", "http://localhost:8080/check_classify"); // false for synchronous request
+    //hash and id of classication process
+    let params = new URL(location.href).searchParams;
+    let video_id = params.get('video_id');
+    let classification = '{{process_classify}}'
+    
+    
+    const datatosend ={
+      id: video_id,
+      process_id_c : classification
+    };
+    const jsondata = JSON.stringify(datatosend);
+    xmlHttp.setRequestHeader( "Content-Type", "application/json" );
+    xmlHttp.onload=function(){
+      let video_url = xmlHttp.responseText
+      if (video_url!="-1"){
+        timer=null;
+        window.location.href = 'http://localhost:8080/result?video_id='+encodeURIComponent(video_url)
+
+      }
+    }
+    xmlHttp.send(jsondata);
+}
 </script>
 
-<body>
+<body onload="check();">
   <h1>Your video is being classified</h1>
-  <h2> </h2>
+  <h2>You will be redirected as soon as the classication is finished</h2>
